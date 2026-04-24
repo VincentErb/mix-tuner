@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/note.dart';
+import '../models/tuning.dart';
+import '../models/instrument_preset.dart';
 import '../providers/audio_provider.dart';
 import '../providers/tuning_provider.dart';
 import '../providers/string_provider.dart';
@@ -76,7 +78,7 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
             while (rawCents < -600) { rawCents += 1200; }
             displayCents = rawCents.clamp(-60.0, 60.0);
             displayNote = targetNote;
-            isInTune = displayCents.abs() <= 5;
+            isInTune = displayCents.abs() <= 10;
           }
 
           return SafeArea(
@@ -88,13 +90,16 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        tuning.name,
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
-                          fontSize: 14,
-                          letterSpacing: 1.2,
-                        ),
+                      _InstrumentPicker(
+                        current: tuning,
+                        allTunings: [
+                          ...InstrumentPresets.all,
+                          ...ref.read(tuningProvider.notifier).getCustomTunings(),
+                        ],
+                        onSelect: (t) {
+                          ref.read(tuningProvider.notifier).selectTuning(t);
+                          ref.read(selectedStringIndexProvider.notifier).state = -1;
+                        },
                       ),
                       _ModeToggle(
                         isAuto: isAutoMode,
@@ -201,6 +206,77 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Tappable tuning name label that pops up a quick instrument switcher.
+class _InstrumentPicker extends StatelessWidget {
+  final Tuning current;
+  final List<Tuning> allTunings;
+  final ValueChanged<Tuning> onSelect;
+
+  const _InstrumentPicker({
+    required this.current,
+    required this.allTunings,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<Tuning>(
+      onSelected: onSelect,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: AppColors.divider),
+      ),
+      itemBuilder: (_) => allTunings
+          .map(
+            (t) => PopupMenuItem<Tuning>(
+              value: t,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.name,
+                      style: TextStyle(
+                        color: t.name == current.name
+                            ? AppColors.inTune
+                            : AppColors.textPrimary,
+                        fontWeight: t.name == current.name
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  if (t.name == current.name)
+                    const Icon(Icons.check, color: AppColors.inTune, size: 16),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+      // The visible "button" — styled like a label with a chevron
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            current.name.toUpperCase(),
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(width: 2),
+          const Icon(
+            Icons.arrow_drop_down,
+            color: AppColors.textSecondary,
+            size: 18,
+          ),
+        ],
       ),
     );
   }

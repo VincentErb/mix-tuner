@@ -62,7 +62,7 @@ class PitchStabilizer {
   final List<double> _history = [];
 
   PitchStabilizer({
-    this.silenceRms = 0.008,
+    this.silenceRms = 0.002,
     this.minProbability = 0.7,
     this.medianWindow = 5,
     this.octaveSnapCents = 60,

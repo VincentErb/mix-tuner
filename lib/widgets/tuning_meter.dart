@@ -100,9 +100,9 @@ class _MeterPainter extends CustomPainter {
 
     // Draw colored zone arcs on top
     _drawZoneArc(canvas, center, radius, -50, -25, AppColors.outOfTune);
-    _drawZoneArc(canvas, center, radius, -25, -5, AppColors.close);
-    _drawZoneArc(canvas, center, radius, -5, 5, AppColors.inTune);
-    _drawZoneArc(canvas, center, radius, 5, 25, AppColors.close);
+    _drawZoneArc(canvas, center, radius, -25, -10, AppColors.close);
+    _drawZoneArc(canvas, center, radius, -10, 10, AppColors.inTune);
+    _drawZoneArc(canvas, center, radius, 10, 25, AppColors.close);
     _drawZoneArc(canvas, center, radius, 25, 50, AppColors.outOfTune);
 
     // Draw tick marks
