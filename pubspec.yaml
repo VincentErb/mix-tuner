@@ -1,5 +1,5 @@
-name: guitaleletuner
-description: A guitar/guitalele tuner app with real-time pitch detection.
+name: mix_tuner
+description: A real-time instrument tuner app for guitar, bass, ukulele and guitalele.
 publish_to: 'none'
 version: 1.0.0+1
 

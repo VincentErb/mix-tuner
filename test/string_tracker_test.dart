@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:guitaleletuner/models/note.dart';
-import 'package:guitaleletuner/services/string_tracker.dart';
+import 'package:mix_tuner/models/note.dart';
+import 'package:mix_tuner/services/string_tracker.dart';
 
 void main() {
   // Standard guitar E2 A2 D3 G3 B3 E4.

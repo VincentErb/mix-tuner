@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:guitaleletuner/models/note.dart';
+import 'package:mix_tuner/models/note.dart';
 
 void main() {
   test('Note.fromFrequency returns A4 for 440 Hz', () {

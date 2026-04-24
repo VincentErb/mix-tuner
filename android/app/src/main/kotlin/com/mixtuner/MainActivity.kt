@@ -1,4 +1,4 @@
-package com.vincenterbguitaletuner.guitaleletuner
+package com.mixtuner
 
 import io.flutter.embedding.android.FlutterActivity
 

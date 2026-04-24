@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:guitaleletuner/services/pitch_service.dart';
-import 'package:guitaleletuner/services/pitch_stabilizer.dart';
+import 'package:mix_tuner/services/pitch_service.dart';
+import 'package:mix_tuner/services/pitch_stabilizer.dart';
 
 RawPitch raw(double hz, {double rms = 0.05, double prob = 0.95}) =>
     RawPitch(frequencyHz: hz, pitched: hz > 0, probability: prob, rms: rms);
