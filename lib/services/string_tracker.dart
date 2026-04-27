@@ -5,15 +5,23 @@ import '../models/note.dart';
 /// with hysteresis so transient overtones don't flip the selection.
 ///
 /// Strategy:
-///   - On each stable frame, compute the closest string by log-distance.
-///   - Require [switchFrames] consecutive frames pointing at a *different*
-///     string before switching away from the currently locked one.
-///   - Require the candidate to beat the current string by at least
-///     [switchMarginCents] cents in log-distance, so near-ties don't
-///     bounce between adjacent strings (e.g. B3 vs E4 when a 4th overtone
-///     sneaks in).
+///   - On each pitched frame, compute the closest string by log-distance
+///     (with octave tolerance so a weak fundamental still matches).
+///   - On the **initial** lock, require [initialLockFrames] consecutive
+///     frames pointing at the same string. This stops auto-mode from
+///     latching onto rogue noise pitches the moment we wake up.
+///   - To **switch** strings later, require [switchFrames] consecutive
+///     frames pointing at a *different* string AND that the candidate
+///     beats the current lock by at least [switchMarginCents] in log
+///     distance.
 class StringTracker {
+  /// Frames needed to acquire the very first lock (cold start).
+  final int initialLockFrames;
+
+  /// Frames needed to switch from one locked string to another.
   final int switchFrames;
+
+  /// Minimum cents margin a candidate must beat the current lock by.
   final double switchMarginCents;
 
   int? _lockedIdx;
@@ -21,17 +29,17 @@ class StringTracker {
   int _candidateCount = 0;
 
   StringTracker({
+    this.initialLockFrames = 3,
     this.switchFrames = 4,
     this.switchMarginCents = 50,
   });
 
   /// Returns the index of the currently tracked string, or null if we
-  /// haven't locked on yet. [hz] should be a stabilized frequency; pass
-  /// null/0 for silent frames (which decay the candidate).
+  /// haven't locked on yet. Pass `0` for silent frames.
   int? update(double hz, List<Note> strings) {
     if (strings.isEmpty) return null;
     if (hz <= 0) {
-      // Silent — hold the lock but reset any pending switch.
+      // Silent — hold the lock but cancel any pending switch / initial lock.
       _candidateIdx = null;
       _candidateCount = 0;
       return _lockedIdx;
@@ -39,12 +47,20 @@ class StringTracker {
 
     final closest = _closestIdx(hz, strings);
 
-    // First lock-on: accept immediately so the UI responds to the first pluck.
+    // ── Cold start: build initial lock with hysteresis ───────────────
     if (_lockedIdx == null) {
-      _lockedIdx = closest;
-      _candidateIdx = null;
-      _candidateCount = 0;
-      return _lockedIdx;
+      if (closest == _candidateIdx) {
+        _candidateCount++;
+      } else {
+        _candidateIdx = closest;
+        _candidateCount = 1;
+      }
+      if (_candidateCount >= initialLockFrames) {
+        _lockedIdx = _candidateIdx;
+        _candidateIdx = null;
+        _candidateCount = 0;
+      }
+      return _lockedIdx; // null until lock acquired
     }
 
     if (closest == _lockedIdx) {
@@ -53,11 +69,10 @@ class StringTracker {
       return _lockedIdx;
     }
 
-    // Require candidate to beat the locked string by a clear margin.
+    // Switching: candidate must beat the locked string by a margin.
     final dLocked = _centsDist(hz, strings[_lockedIdx!].frequency);
     final dCandidate = _centsDist(hz, strings[closest].frequency);
     if (dLocked - dCandidate < switchMarginCents) {
-      // Too close to call — keep the lock, don't build up a candidate.
       _candidateIdx = null;
       _candidateCount = 0;
       return _lockedIdx;
@@ -69,7 +84,6 @@ class StringTracker {
       _candidateIdx = closest;
       _candidateCount = 1;
     }
-
     if (_candidateCount >= switchFrames) {
       _lockedIdx = _candidateIdx;
       _candidateIdx = null;
@@ -88,9 +102,6 @@ class StringTracker {
     double best = double.infinity;
     int bestIdx = 0;
     for (int i = 0; i < strings.length; i++) {
-      // Consider the raw frequency AND one octave up/down so that a weak
-      // fundamental (e.g. A2 on a guitalele where the 2nd harmonic dominates)
-      // still matches the correct string rather than one an octave higher.
       final d = _octaveTolerantDist(hz, strings[i].frequency);
       if (d < best) {
         best = d;
@@ -100,13 +111,13 @@ class StringTracker {
     return bestIdx;
   }
 
-  /// Returns the minimum |cents| between [a] and [b] after trying
-  /// ±1 octave shifts of [a]. This lets a signal at 2× the fundamental
-  /// still be attributed to the correct (lower) string.
+  /// Min |cents| between [a] and [b] after trying ±1 octave shifts of [a].
+  /// Lets a signal at 2× the fundamental still be attributed to the right
+  /// (lower) string.
   static double _octaveTolerantDist(double a, double b) {
     final d0 = _centsDist(a, b);
-    final dDown = _centsDist(a / 2, b); // a is an octave too high
-    final dUp = _centsDist(a * 2, b);   // a is an octave too low
+    final dDown = _centsDist(a / 2, b);
+    final dUp = _centsDist(a * 2, b);
     return [d0, dDown, dUp].reduce((x, y) => x < y ? x : y);
   }
 

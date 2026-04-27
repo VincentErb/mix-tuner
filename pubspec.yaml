@@ -10,9 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Pitch detection — YIN algorithm, pure Dart
-  pitch_detector_dart: ^0.0.7
-
   # Microphone audio capture — PCM16 streaming
   record: ^6.0.0
 

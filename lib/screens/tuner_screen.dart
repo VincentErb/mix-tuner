@@ -8,7 +8,7 @@ import '../providers/audio_provider.dart';
 import '../providers/tuning_provider.dart';
 import '../providers/string_provider.dart';
 import '../services/string_tracker.dart';
-import '../widgets/tuning_meter.dart';
+import '../widgets/tuning_strip.dart';
 import '../widgets/note_display.dart';
 import '../widgets/string_selector.dart';
 import '../widgets/permission_gate.dart';
@@ -25,13 +25,17 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
   final StringTracker _tracker = StringTracker();
   String? _lastTuningName;
 
+  /// Last cents we showed — used to drive the inter-frame tween so the
+  /// pill glides smoothly rather than teleporting at each ~23 ms update.
+  double _lastDisplayCents = 0;
+  bool _wasPitched = false;
+
   @override
   Widget build(BuildContext context) {
     final pitchAsync = ref.watch(pitchStreamProvider);
     final tuning = ref.watch(tuningProvider);
     final selectedString = ref.watch(selectedStringIndexProvider);
 
-    // Reset tracker when the tuning changes.
     if (_lastTuningName != tuning.name) {
       _tracker.reset();
       _lastTuningName = tuning.name;
@@ -54,7 +58,7 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
             return const PermissionGate();
           }
 
-          // Update tracker every frame; pass 0 on silence.
+          // Update tracker every frame.
           final autoIdx = _tracker.update(
             pitchResult.pitched ? pitchResult.frequencyHz : 0,
             tuning.strings,
@@ -71,20 +75,28 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
             final targetFreq = targetNote.frequency;
             double rawCents =
                 1200 * log(pitchResult.frequencyHz / targetFreq) / ln2;
-            // Octave-snap: if the detected pitch is ≈ an octave away from the
-            // target (e.g. guitalele A2 detected as A3), fold it back so the
-            // meter reads the correct deviation rather than ±1200 ¢.
+            // Octave-snap: fold ±1200¢ deviations back so the strip reads
+            // the true micro-deviation rather than ±1200¢.
             while (rawCents > 600) { rawCents -= 1200; }
             while (rawCents < -600) { rawCents += 1200; }
-            displayCents = rawCents.clamp(-60.0, 60.0);
+            displayCents = rawCents.clamp(-50.0, 50.0);
             displayNote = targetNote;
             isInTune = displayCents.abs() <= 10;
           }
 
+          // Decide what cents we feed the strip. If we just lost the pitch,
+          // hold the previous value briefly via the ghost pill.
+          final showStrip = pitchResult.pitched;
+          final fromCents = _wasPitched ? _lastDisplayCents : displayCents;
+          if (showStrip) {
+            _lastDisplayCents = displayCents;
+          }
+          _wasPitched = showStrip;
+
           return SafeArea(
             child: Column(
               children: [
-                // ── Header row: tuning name + AUTO/MANUAL toggle ──────────
+                // ── Header: instrument picker + AUTO/MANUAL toggle ────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                   child: Row(
@@ -94,11 +106,15 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                         current: tuning,
                         allTunings: [
                           ...InstrumentPresets.all,
-                          ...ref.read(tuningProvider.notifier).getCustomTunings(),
+                          ...ref
+                              .read(tuningProvider.notifier)
+                              .getCustomTunings(),
                         ],
                         onSelect: (t) {
                           ref.read(tuningProvider.notifier).selectTuning(t);
-                          ref.read(selectedStringIndexProvider.notifier).state = -1;
+                          ref
+                              .read(selectedStringIndexProvider.notifier)
+                              .state = -1;
                         },
                       ),
                       _ModeToggle(
@@ -109,7 +125,6 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                                 .read(selectedStringIndexProvider.notifier)
                                 .state = -1;
                           } else {
-                            // Lock to the currently highlighted string.
                             ref
                                 .read(selectedStringIndexProvider.notifier)
                                 .state = autoIdx ?? 0;
@@ -122,19 +137,51 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
 
                 // ── Target string label ───────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.only(top: 6),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     targetNote?.displayName ?? '',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
-                      fontSize: 18,
+                      fontSize: 16,
+                      letterSpacing: 1.0,
                     ),
                   ),
                 ),
 
-                // ── Detected note ─────────────────────────────────────────
+                // ── Tuning strip — the new continuous-line meter ─────────
+                const SizedBox(height: 18),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: SizedBox(
+                    height: 120,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: fromCents, end: displayCents),
+                      duration: const Duration(milliseconds: 80),
+                      curve: Curves.easeOutCubic,
+                      builder: (_, value, child) => TuningStrip(
+                        centsOff: value,
+                        pitched: pitchResult.pitched,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ── TOO LOW / TOO HIGH directional hint ──────────────────
+                SizedBox(
+                  height: 22,
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: _DirectionLabel(
+                        cents: pitchResult.pitched ? displayCents : 0,
+                        pitched: pitchResult.pitched,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ── Big detected note ────────────────────────────────────
                 Expanded(
-                  flex: 3,
                   child: Center(
                     child: NoteDisplay(
                       note: pitchResult.pitched ? displayNote : null,
@@ -144,34 +191,7 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                   ),
                 ),
 
-                // ── Arc meter ─────────────────────────────────────────────
-                SizedBox(
-                  height: 180,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TuningMeter(
-                      centsOff: pitchResult.pitched ? displayCents : 0,
-                      pitched: pitchResult.pitched,
-                    ),
-                  ),
-                ),
-
-                // ── Cents readout ─────────────────────────────────────────
-                Padding(
-                  padding: const EdgeInsets.only(top: 4, bottom: 8),
-                  child: Text(
-                    pitchResult.pitched
-                        ? '${displayCents >= 0 ? '+' : ''}${displayCents.toStringAsFixed(0)} ¢'
-                        : '',
-                    style: TextStyle(
-                      color:
-                          isInTune ? AppColors.inTune : AppColors.textSecondary,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-
-                // ── In-tune indicator bar ─────────────────────────────────
+                // ── In-tune indicator pulse ──────────────────────────────
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   height: 4,
@@ -183,19 +203,15 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                   ),
                 ),
 
-                // ── String selector ───────────────────────────────────────
+                // ── String selector ──────────────────────────────────────
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: StringSelector(
                     strings: tuning.strings,
                     selectedIndex: selectedString,
-                    // In manual mode don't show the auto-glow; user owns the
-                    // selection explicitly.
                     autoDetectedIndex: isAutoMode ? autoIdx : null,
                     onStringTap: (idx) {
-                      // Tapping any string in either mode locks to that string
-                      // (manual mode). The toggle is the way back to auto.
                       ref.read(selectedStringIndexProvider.notifier).state =
                           idx;
                     },
@@ -206,6 +222,35 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Shows "TOO LOW" / "TOO HIGH" when the pitch is off by enough to matter.
+/// Stays empty inside the in-tune zone so the UI stays calm when you're close.
+class _DirectionLabel extends StatelessWidget {
+  final double cents;
+  final bool pitched;
+
+  const _DirectionLabel({required this.cents, required this.pitched});
+
+  @override
+  Widget build(BuildContext context) {
+    if (!pitched || cents.abs() < 15) {
+      return const SizedBox.shrink(key: ValueKey('empty'));
+    }
+    final isLow = cents < 0;
+    return Text(
+      isLow ? 'TOO LOW' : 'TOO HIGH',
+      key: ValueKey(isLow ? 'low' : 'high'),
+      style: TextStyle(
+        color: cents.abs() > 25
+            ? AppColors.outOfTune
+            : AppColors.close,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.5,
       ),
     );
   }
@@ -258,7 +303,6 @@ class _InstrumentPicker extends StatelessWidget {
             ),
           )
           .toList(),
-      // The visible "button" — styled like a label with a chevron
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -326,7 +370,8 @@ class _Pill extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: active ? AppColors.inTune.withValues(alpha: 0.15) : Colors.transparent,
+        color:
+            active ? AppColors.inTune.withValues(alpha: 0.15) : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: active ? AppColors.inTune : Colors.transparent,

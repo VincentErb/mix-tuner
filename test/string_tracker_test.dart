@@ -13,21 +13,37 @@ void main() {
     Note.fromString('E4'),
   ];
 
-  test('first pluck locks immediately', () {
-    final t = StringTracker();
-    expect(t.update(110, strings), 1); // A2
+  test('a single pitched frame does NOT acquire initial lock', () {
+    final t = StringTracker(initialLockFrames: 3);
+    final idx = t.update(110, strings); // would point at A2
+    expect(idx, isNull,
+        reason: 'we now require sustained pitch before locking');
   });
 
-  test('single stray frame does not switch string', () {
-    final t = StringTracker(switchFrames: 4);
+  test('three consistent frames acquire the initial lock', () {
+    final t = StringTracker(initialLockFrames: 3);
+    expect(t.update(110, strings), isNull);
+    expect(t.update(110, strings), isNull);
+    expect(t.update(110, strings), 1); // A2 (index 1)
+  });
+
+  test('inconsistent frames never acquire a lock', () {
+    final t = StringTracker(initialLockFrames: 3);
+    // Each frame points at a different string — typical noise pattern.
+    for (final hz in [82.4, 110.0, 146.8, 196.0, 247.0, 330.0]) {
+      expect(t.update(hz, strings), isNull);
+    }
+  });
+
+  test('single stray frame does not switch a held lock', () {
+    final t = StringTracker(initialLockFrames: 1, switchFrames: 4);
     t.update(82.4, strings); // E2 lock
-    // One stray frame toward A2 — should not flip.
     final idx = t.update(110, strings);
     expect(idx, 0);
   });
 
-  test('sustained new string switches after hysteresis', () {
-    final t = StringTracker(switchFrames: 4);
+  test('sustained new string switches after switch hysteresis', () {
+    final t = StringTracker(initialLockFrames: 1, switchFrames: 4);
     t.update(82.4, strings); // lock E2
     for (int i = 0; i < 3; i++) {
       expect(t.update(110, strings), 0); // still E2
@@ -36,9 +52,9 @@ void main() {
   });
 
   test('silence does not break the lock', () {
-    final t = StringTracker();
-    t.update(110, strings); // A2
-    t.update(0, strings); // silent
-    expect(t.update(0, strings), 1); // still A2
+    final t = StringTracker(initialLockFrames: 1);
+    t.update(110, strings);
+    t.update(0, strings);
+    expect(t.update(0, strings), 1);
   });
 }

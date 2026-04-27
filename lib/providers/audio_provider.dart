@@ -45,8 +45,12 @@ final pitchStreamProvider =
   yield StablePitch.silent;
 
   await for (final chunk in audioService.startStream()) {
-    final raw = await pitchService.processChunk(chunk);
-    if (raw == null) continue; // buffer not full yet
-    yield stabilizer.process(raw);
+    // PitchService now produces 0..N raw frames per audio chunk thanks to
+    // overlapping analysis windows (~43 Hz refresh rate). Feed each one
+    // through the stabilizer so the UI gets every frame.
+    final rawFrames = await pitchService.processChunk(chunk);
+    for (final raw in rawFrames) {
+      yield stabilizer.process(raw);
+    }
   }
 });
