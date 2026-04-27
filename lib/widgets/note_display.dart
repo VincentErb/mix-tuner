@@ -34,9 +34,7 @@ class NoteDisplay extends StatelessWidget {
             color: _noteColor,
             height: 1,
           ),
-          child: Text(
-            note?.name ?? '-',
-          ),
+          child: Text(note?.name ?? '-'),
         ),
         if (note != null && pitched)
           Text(

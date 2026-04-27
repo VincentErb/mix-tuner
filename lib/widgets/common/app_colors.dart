@@ -7,9 +7,9 @@ class AppColors {
   static const surfaceVariant = Color(0xFF252525);
 
   // Tuning states
-  static const inTune = Color(0xFF00BFA5);    // teal
-  static const close = Color(0xFFFFC107);      // amber
-  static const outOfTune = Color(0xFFE53935);  // red
+  static const inTune = Color(0xFF00BFA5); // teal
+  static const close = Color(0xFFFFC107); // amber
+  static const outOfTune = Color(0xFFE53935); // red
 
   // Text
   static const textPrimary = Color(0xFFFFFFFF);

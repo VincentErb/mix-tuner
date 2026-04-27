@@ -50,8 +50,10 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
           child: CircularProgressIndicator(color: AppColors.inTune),
         ),
         error: (e, _) => Center(
-          child: Text('Error: $e',
-              style: const TextStyle(color: AppColors.outOfTune)),
+          child: Text(
+            'Error: $e',
+            style: const TextStyle(color: AppColors.outOfTune),
+          ),
         ),
         data: (pitchResult) {
           if (pitchResult == null) {
@@ -64,8 +66,9 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
             tuning.strings,
           );
           final activeIdx = isAutoMode ? autoIdx : selectedString;
-          final targetNote =
-              activeIdx != null ? tuning.strings[activeIdx] : null;
+          final targetNote = activeIdx != null
+              ? tuning.strings[activeIdx]
+              : null;
 
           double displayCents = pitchResult.centsOff;
           Note? displayNote = pitchResult.nearestNote;
@@ -77,8 +80,12 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                 1200 * log(pitchResult.frequencyHz / targetFreq) / ln2;
             // Octave-snap: fold ±1200¢ deviations back so the strip reads
             // the true micro-deviation rather than ±1200¢.
-            while (rawCents > 600) { rawCents -= 1200; }
-            while (rawCents < -600) { rawCents += 1200; }
+            while (rawCents > 600) {
+              rawCents -= 1200;
+            }
+            while (rawCents < -600) {
+              rawCents += 1200;
+            }
             displayCents = rawCents.clamp(-50.0, 50.0);
             displayNote = targetNote;
             isInTune = displayCents.abs() <= 10;
@@ -112,9 +119,8 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                         ],
                         onSelect: (t) {
                           ref.read(tuningProvider.notifier).selectTuning(t);
-                          ref
-                              .read(selectedStringIndexProvider.notifier)
-                              .state = -1;
+                          ref.read(selectedStringIndexProvider.notifier).state =
+                              -1;
                         },
                       ),
                       _ModeToggle(
@@ -122,12 +128,14 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
                         onToggle: (wantsAuto) {
                           if (wantsAuto) {
                             ref
-                                .read(selectedStringIndexProvider.notifier)
-                                .state = -1;
+                                    .read(selectedStringIndexProvider.notifier)
+                                    .state =
+                                -1;
                           } else {
                             ref
-                                .read(selectedStringIndexProvider.notifier)
-                                .state = autoIdx ?? 0;
+                                    .read(selectedStringIndexProvider.notifier)
+                                    .state =
+                                autoIdx ?? 0;
                           }
                         },
                       ),
@@ -205,8 +213,10 @@ class _TunerScreenState extends ConsumerState<TunerScreen> {
 
                 // ── String selector ──────────────────────────────────────
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                   child: StringSelector(
                     strings: tuning.strings,
                     selectedIndex: selectedString,
@@ -245,9 +255,7 @@ class _DirectionLabel extends StatelessWidget {
       isLow ? 'TOO LOW' : 'TOO HIGH',
       key: ValueKey(isLow ? 'low' : 'high'),
       style: TextStyle(
-        color: cents.abs() > 25
-            ? AppColors.outOfTune
-            : AppColors.close,
+        color: cents.abs() > 25 ? AppColors.outOfTune : AppColors.close,
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.5,
@@ -370,8 +378,9 @@ class _Pill extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color:
-            active ? AppColors.inTune.withValues(alpha: 0.15) : Colors.transparent,
+        color: active
+            ? AppColors.inTune.withValues(alpha: 0.15)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: active ? AppColors.inTune : Colors.transparent,

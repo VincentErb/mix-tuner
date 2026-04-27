@@ -16,8 +16,11 @@ void main() {
   test('a single pitched frame does NOT acquire initial lock', () {
     final t = StringTracker(initialLockFrames: 3);
     final idx = t.update(110, strings); // would point at A2
-    expect(idx, isNull,
-        reason: 'we now require sustained pitch before locking');
+    expect(
+      idx,
+      isNull,
+      reason: 'we now require sustained pitch before locking',
+    );
   });
 
   test('three consistent frames acquire the initial lock', () {

@@ -50,8 +50,11 @@ void main() {
         // Sub-cent accuracy expected on pure sines.
         final cents =
             1200 * (log(result.frequencyHz / entry.value) / ln2).abs();
-        expect(cents, lessThan(2.0),
-            reason: 'within 2 cents of true pitch ($cents¢ off)');
+        expect(
+          cents,
+          lessThan(2.0),
+          reason: 'within 2 cents of true pitch ($cents¢ off)',
+        );
         expect(result.clarity, greaterThan(0.9));
       });
     }

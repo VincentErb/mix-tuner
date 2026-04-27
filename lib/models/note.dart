@@ -4,7 +4,18 @@ import 'dart:math';
 /// A4 = MIDI 69 = 440 Hz
 class Note {
   static const _noteNames = [
-    'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
+    'C',
+    'C#',
+    'D',
+    'D#',
+    'E',
+    'F',
+    'F#',
+    'G',
+    'G#',
+    'A',
+    'A#',
+    'B',
   ];
 
   final int midiNumber;
@@ -50,7 +61,8 @@ class Note {
   factory Note.fromJson(Map<String, dynamic> json) => Note(json['midi'] as int);
 
   @override
-  bool operator ==(Object other) => other is Note && other.midiNumber == midiNumber;
+  bool operator ==(Object other) =>
+      other is Note && other.midiNumber == midiNumber;
 
   @override
   int get hashCode => midiNumber.hashCode;

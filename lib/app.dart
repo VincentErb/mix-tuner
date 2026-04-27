@@ -31,7 +31,10 @@ class App extends StatelessWidget {
             if (states.contains(WidgetState.selected)) {
               return const TextStyle(color: AppColors.inTune, fontSize: 12);
             }
-            return const TextStyle(color: AppColors.textSecondary, fontSize: 12);
+            return const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 12,
+            );
           }),
           iconTheme: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.selected)) {
@@ -56,35 +59,22 @@ class MainScaffold extends StatefulWidget {
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
 
-  static const _screens = [
-    TunerScreen(),
-    FreeTunerScreen(),
-    SettingsScreen(),
-  ];
+  static const _screens = [TunerScreen(), FreeTunerScreen(), SettingsScreen()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (i) => setState(() => _currentIndex = i),
         destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.graphic_eq),
-            label: 'Tuner',
-          ),
+          NavigationDestination(icon: Icon(Icons.graphic_eq), label: 'Tuner'),
           NavigationDestination(
             icon: Icon(Icons.music_note),
             label: 'Free Tuner',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
     );

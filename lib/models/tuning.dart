@@ -21,18 +21,18 @@ class Tuning {
   }
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'isCustom': isCustom,
-        'strings': strings.map((n) => n.toJson()).toList(),
-      };
+    'name': name,
+    'isCustom': isCustom,
+    'strings': strings.map((n) => n.toJson()).toList(),
+  };
 
   factory Tuning.fromJson(Map<String, dynamic> json) => Tuning(
-        name: json['name'] as String,
-        isCustom: (json['isCustom'] as bool?) ?? false,
-        strings: (json['strings'] as List)
-            .map((e) => Note.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    name: json['name'] as String,
+    isCustom: (json['isCustom'] as bool?) ?? false,
+    strings: (json['strings'] as List)
+        .map((e) => Note.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 
   String toJsonString() => jsonEncode(toJson());
   factory Tuning.fromJsonString(String s) => Tuning.fromJson(jsonDecode(s));

@@ -98,12 +98,14 @@ class PitchService {
 
       final mpm = _detector.detect(window);
 
-      results.add(RawPitch(
-        frequencyHz: mpm.frequencyHz > 0 ? mpm.frequencyHz : 0,
-        pitched: mpm.pitched,
-        clarity: mpm.clarity,
-        rms: rms,
-      ));
+      results.add(
+        RawPitch(
+          frequencyHz: mpm.frequencyHz > 0 ? mpm.frequencyHz : 0,
+          pitched: mpm.pitched,
+          clarity: mpm.clarity,
+          rms: rms,
+        ),
+      );
 
       // Slide the window by hopSize.
       _buffer.removeRange(0, hopSize);

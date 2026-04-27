@@ -38,13 +38,19 @@ void main() {
   });
 
   group('PitchStabilizer — stability gate', () {
-    test('a single pitched frame does NOT produce output (noise rejection)', () {
-      final s = PitchStabilizer();
-      // One isolated valid frame — should be rejected as "not yet stable".
-      final out = s.process(raw(110.0));
-      expect(out.pitched, isFalse,
-          reason: 'one frame is not enough to overcome the stability gate');
-    });
+    test(
+      'a single pitched frame does NOT produce output (noise rejection)',
+      () {
+        final s = PitchStabilizer();
+        // One isolated valid frame — should be rejected as "not yet stable".
+        final out = s.process(raw(110.0));
+        expect(
+          out.pitched,
+          isFalse,
+          reason: 'one frame is not enough to overcome the stability gate',
+        );
+      },
+    );
 
     test('three consistent frames cross the stability gate', () {
       // Disable attack suppression here — we're testing the stability gate
@@ -63,8 +69,11 @@ void main() {
       final freqs = [110.0, 440.0, 220.0, 660.0, 90.0, 1200.0, 150.0];
       for (final f in freqs) {
         final out = s.process(raw(f));
-        expect(out.pitched, isFalse,
-            reason: 'noise should never produce pitched output');
+        expect(
+          out.pitched,
+          isFalse,
+          reason: 'noise should never produce pitched output',
+        );
       }
     });
   });
@@ -142,8 +151,11 @@ void main() {
       // The attack: 4 loud, "wrong-pitch" frames simulating transient noise.
       for (int i = 0; i < 4; i++) {
         final out = s.process(raw(700.0, rms: 0.1)); // bogus pitch
-        expect(out.pitched, isFalse,
-            reason: 'attack-transient frames must not display');
+        expect(
+          out.pitched,
+          isFalse,
+          reason: 'attack-transient frames must not display',
+        );
       }
       // Now the string starts ringing cleanly at A4 — needs stableFrames
       // consistent frames to clear the gate.

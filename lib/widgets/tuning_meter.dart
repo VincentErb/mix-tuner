@@ -9,11 +9,7 @@ class TuningMeter extends StatefulWidget {
   final double centsOff;
   final bool pitched;
 
-  const TuningMeter({
-    super.key,
-    required this.centsOff,
-    required this.pitched,
-  });
+  const TuningMeter({super.key, required this.centsOff, required this.pitched});
 
   @override
   State<TuningMeter> createState() => _TuningMeterState();
@@ -41,9 +37,10 @@ class _TuningMeterState extends State<TuningMeter>
     if (old.centsOff != widget.centsOff) {
       final from = _previousCents;
       final to = widget.centsOff;
-      _needleAngle = Tween<double>(begin: from, end: to).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-      );
+      _needleAngle = Tween<double>(
+        begin: from,
+        end: to,
+      ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
       _previousCents = to;
       _controller.forward(from: 0);
     }
@@ -128,21 +125,19 @@ class _MeterPainter extends CustomPainter {
       canvas.drawLine(center, needleEnd, needlePaint);
 
       // Pivot circle
-      canvas.drawCircle(
-        center,
-        8,
-        Paint()..color = Colors.white,
-      );
-      canvas.drawCircle(
-        center,
-        5,
-        Paint()..color = AppColors.surface,
-      );
+      canvas.drawCircle(center, 8, Paint()..color = Colors.white);
+      canvas.drawCircle(center, 5, Paint()..color = AppColors.surface);
     }
   }
 
   void _drawZoneArc(
-      Canvas canvas, Offset center, double radius, double fromC, double toC, Color color) {
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double fromC,
+    double toC,
+    Color color,
+  ) {
     final paint = Paint()
       ..color = color.withValues(alpha: 0.7)
       ..style = PaintingStyle.stroke

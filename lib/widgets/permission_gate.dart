@@ -29,10 +29,7 @@ class PermissionGate extends ConsumerWidget {
             const Text(
               'This app needs microphone access to detect pitch. '
               'Please grant the permission to start tuning.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppColors.textSecondary,
-              ),
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -49,7 +46,10 @@ class PermissionGate extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.inTune,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 14,
+                ),
               ),
             ),
           ],

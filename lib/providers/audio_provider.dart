@@ -23,8 +23,9 @@ final pitchStabilizerProvider = Provider.autoDispose<PitchStabilizer>((ref) {
 /// show the permission gate. While listening, every yielded value is a real
 /// [StablePitch] — silent frames arrive as [StablePitch.silent] (pitched=false)
 /// rather than null, so the UI can smoothly transition between notes.
-final pitchStreamProvider =
-    StreamProvider.autoDispose<StablePitch?>((ref) async* {
+final pitchStreamProvider = StreamProvider.autoDispose<StablePitch?>((
+  ref,
+) async* {
   final audioService = ref.read(audioServiceProvider);
   final pitchService = ref.read(pitchServiceProvider);
   final stabilizer = ref.read(pitchStabilizerProvider);

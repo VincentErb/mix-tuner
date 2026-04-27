@@ -33,7 +33,9 @@ class TuningNotifier extends StateNotifier<Tuning> {
     if (raw == null) return [];
     try {
       final list = jsonDecode(raw) as List;
-      return list.map((e) => Tuning.fromJson(e as Map<String, dynamic>)).toList();
+      return list
+          .map((e) => Tuning.fromJson(e as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -47,13 +49,19 @@ class TuningNotifier extends StateNotifier<Tuning> {
     } else {
       customs.add(tuning);
     }
-    _prefs.setString(_customTuningsKey, jsonEncode(customs.map((t) => t.toJson()).toList()));
+    _prefs.setString(
+      _customTuningsKey,
+      jsonEncode(customs.map((t) => t.toJson()).toList()),
+    );
     selectTuning(tuning);
   }
 
   void deleteCustomTuning(String name) {
     final customs = getCustomTunings()..removeWhere((t) => t.name == name);
-    _prefs.setString(_customTuningsKey, jsonEncode(customs.map((t) => t.toJson()).toList()));
+    _prefs.setString(
+      _customTuningsKey,
+      jsonEncode(customs.map((t) => t.toJson()).toList()),
+    );
     if (state.name == name) {
       selectTuning(InstrumentPresets.standardGuitar);
     }

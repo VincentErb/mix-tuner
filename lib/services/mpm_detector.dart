@@ -168,20 +168,21 @@ class MpmDetector {
       return MpmResult.noPitch;
     }
 
-    return MpmResult(
-      frequencyHz: freq,
-      clarity: clarity.clamp(0.0, 1.0),
-    );
+    return MpmResult(frequencyHz: freq, clarity: clarity.clamp(0.0, 1.0));
   }
 
   /// Parabolic interpolation around a peak at integer index [x].
   /// Returns refined (x, y).
   (double, double) _parabolicInterp(Float64List a, int x) {
     if (x < 1) {
-      return a[x] <= a[x + 1] ? (x.toDouble(), a[x]) : ((x + 1).toDouble(), a[x + 1]);
+      return a[x] <= a[x + 1]
+          ? (x.toDouble(), a[x])
+          : ((x + 1).toDouble(), a[x + 1]);
     }
     if (x >= a.length - 1) {
-      return a[x] <= a[x - 1] ? (x.toDouble(), a[x]) : ((x - 1).toDouble(), a[x - 1]);
+      return a[x] <= a[x - 1]
+          ? (x.toDouble(), a[x])
+          : ((x - 1).toDouble(), a[x - 1]);
     }
     final den = a[x + 1] + a[x - 1] - 2 * a[x];
     final delta = a[x - 1] - a[x + 1];

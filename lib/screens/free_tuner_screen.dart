@@ -20,8 +20,10 @@ class FreeTunerScreen extends ConsumerWidget {
           child: CircularProgressIndicator(color: AppColors.inTune),
         ),
         error: (e, _) => Center(
-          child: Text('Error: $e',
-              style: const TextStyle(color: AppColors.outOfTune)),
+          child: Text(
+            'Error: $e',
+            style: const TextStyle(color: AppColors.outOfTune),
+          ),
         ),
         data: (pitchResult) {
           if (pitchResult == null) {
@@ -29,8 +31,9 @@ class FreeTunerScreen extends ConsumerWidget {
           }
 
           final hz = pitchResult.frequencyHz;
-          final hzText =
-              pitchResult.pitched ? '${hz.toStringAsFixed(1)} Hz' : '— Hz';
+          final hzText = pitchResult.pitched
+              ? '${hz.toStringAsFixed(1)} Hz'
+              : '— Hz';
 
           return SafeArea(
             child: Column(

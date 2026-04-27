@@ -148,7 +148,8 @@ class PitchStabilizer {
     // short window to skip past that transient.
     final wasQuiet = _last.signalLevel < silenceRms * 2;
     final prevRms = max(_last.signalLevel, silenceRms);
-    final isOnset = wasQuiet &&
+    final isOnset =
+        wasQuiet &&
         raw.rms > silenceRms * 3 &&
         raw.rms > onsetRmsRatio * prevRms;
     if (isOnset) {
@@ -177,7 +178,8 @@ class PitchStabilizer {
     }
 
     // ── Per-frame validity ───────────────────────────────────────────
-    final isValid = raw.rms >= silenceRms &&
+    final isValid =
+        raw.rms >= silenceRms &&
         raw.pitched &&
         raw.clarity >= minClarity &&
         raw.frequencyHz > 0;
@@ -234,8 +236,8 @@ class PitchStabilizer {
       // Adaptive α: fast when confident & close, slow when not.
       final centsDelta = (newCents - _smoothedCents!).abs();
       final closeness = 1.0 - (centsDelta / 200).clamp(0.0, 1.0);
-      final clarityWeight =
-          ((raw.clarity - minClarity) / (1.0 - minClarity)).clamp(0.0, 1.0);
+      final clarityWeight = ((raw.clarity - minClarity) / (1.0 - minClarity))
+          .clamp(0.0, 1.0);
       final w = closeness * clarityWeight;
       final alpha = alphaSlow + (alphaFast - alphaSlow) * w;
       _smoothedCents = (1 - alpha) * _smoothedCents! + alpha * newCents;

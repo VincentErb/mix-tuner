@@ -18,8 +18,9 @@ class StringSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveSelected =
-        selectedIndex == -1 ? autoDetectedIndex : selectedIndex;
+    final effectiveSelected = selectedIndex == -1
+        ? autoDetectedIndex
+        : selectedIndex;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -37,9 +38,7 @@ class StringSelector extends StatelessWidget {
                   ? AppColors.inTune.withValues(alpha: 0.2)
                   : AppColors.surfaceVariant,
               border: Border.all(
-                color: isSelected
-                    ? AppColors.inTune
-                    : AppColors.divider,
+                color: isSelected ? AppColors.inTune : AppColors.divider,
                 width: isSelected ? 2.5 : 1.5,
               ),
             ),

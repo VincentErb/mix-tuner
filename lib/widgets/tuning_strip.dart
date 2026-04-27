@@ -63,7 +63,9 @@ class TuningStrip extends StatelessWidget {
           size: Size(constraints.maxWidth, constraints.maxHeight),
           painter: _StripPainter(
             centsOff: centsOff.clamp(-rangeCents, rangeCents).toDouble(),
-            ghostCentsOff: ghostCentsOff?.clamp(-rangeCents, rangeCents).toDouble(),
+            ghostCentsOff: ghostCentsOff
+                ?.clamp(-rangeCents, rangeCents)
+                .toDouble(),
             pitched: pitched,
             rangeCents: rangeCents,
             inTuneCents: inTuneCents,
@@ -255,10 +257,7 @@ class _StripPainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    tp.paint(
-      canvas,
-      pillCenter - Offset(tp.width / 2, tp.height / 2),
-    );
+    tp.paint(canvas, pillCenter - Offset(tp.width / 2, tp.height / 2));
   }
 
   void _drawGlyph(Canvas canvas, String glyph, Offset center, double dim) {

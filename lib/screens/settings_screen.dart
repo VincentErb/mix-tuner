@@ -15,7 +15,18 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   static const _noteNames = [
-    'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
+    'C',
+    'C#',
+    'D',
+    'D#',
+    'E',
+    'F',
+    'F#',
+    'G',
+    'G#',
+    'A',
+    'A#',
+    'B',
   ];
 
   final _customNameController = TextEditingController(text: 'My Tuning');
@@ -51,36 +62,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     return SafeArea(
       child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Text(
-                'INSTRUMENT PRESETS',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                  letterSpacing: 1.2,
-                ),
+        padding: const EdgeInsets.all(16),
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'INSTRUMENT PRESETS',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                letterSpacing: 1.2,
               ),
             ),
+          ),
 
-            // Preset tiles
-            ...allTunings.map((tuning) => _TuningTile(
+          // Preset tiles
+          ...allTunings.map(
+            (tuning) => _TuningTile(
               tuning: tuning,
               isSelected: currentTuning.name == tuning.name,
               onTap: () => notifier.selectTuning(tuning),
               onDelete: tuning.isCustom
                   ? () => notifier.deleteCustomTuning(tuning.name)
                   : null,
-            )),
+            ),
+          ),
 
-            const SizedBox(height: 24),
+          const SizedBox(height: 24),
 
-            // Custom tuning editor
-            _buildCustomEditor(notifier),
-          ],
-        ),
+          // Custom tuning editor
+          _buildCustomEditor(notifier),
+        ],
+      ),
     );
   }
 
@@ -124,49 +137,54 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // String count
           Row(
             children: [
-              const Text('Strings:', style: TextStyle(color: AppColors.textSecondary)),
+              const Text(
+                'Strings:',
+                style: TextStyle(color: AppColors.textSecondary),
+              ),
               const SizedBox(width: 16),
-              ...List.generate(4, (i) => i + 4).map((count) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _stringCount = count;
-                    // Extend or truncate lists
-                    while (_customNoteNames.length < count) {
-                      _customNoteNames.add('E');
-                      _customOctaves.add(2);
-                    }
-                    _customNoteNames = _customNoteNames.take(count).toList();
-                    _customOctaves = _customOctaves.take(count).toList();
-                  }),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _stringCount == count
-                          ? AppColors.inTune.withValues(alpha: 0.2)
-                          : AppColors.surfaceVariant,
-                      border: Border.all(
+              ...List.generate(4, (i) => i + 4).map(
+                (count) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => setState(() {
+                      _stringCount = count;
+                      // Extend or truncate lists
+                      while (_customNoteNames.length < count) {
+                        _customNoteNames.add('E');
+                        _customOctaves.add(2);
+                      }
+                      _customNoteNames = _customNoteNames.take(count).toList();
+                      _customOctaves = _customOctaves.take(count).toList();
+                    }),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
                         color: _stringCount == count
-                            ? AppColors.inTune
-                            : AppColors.divider,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$count',
-                        style: TextStyle(
+                            ? AppColors.inTune.withValues(alpha: 0.2)
+                            : AppColors.surfaceVariant,
+                        border: Border.all(
                           color: _stringCount == count
                               ? AppColors.inTune
-                              : AppColors.textPrimary,
-                          fontSize: 13,
+                              : AppColors.divider,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$count',
+                          style: TextStyle(
+                            color: _stringCount == count
+                                ? AppColors.inTune
+                                : AppColors.textPrimary,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              )),
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -177,49 +195,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 8),
-          ...List.generate(_stringCount, (i) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                Text(
-                  'String ${i + 1}',
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                ),
-                const SizedBox(width: 16),
-                // Note name dropdown
-                DropdownButton<String>(
-                  value: _customNoteNames[i],
-                  dropdownColor: AppColors.surface,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                  underline: Container(height: 1, color: AppColors.divider),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() => _customNoteNames[i] = val);
-                    }
-                  },
-                  items: _noteNames
-                      .map((n) => DropdownMenuItem(value: n, child: Text(n)))
-                      .toList(),
-                ),
-                const SizedBox(width: 16),
-                // Octave dropdown
-                DropdownButton<int>(
-                  value: _customOctaves[i],
-                  dropdownColor: AppColors.surface,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                  underline: Container(height: 1, color: AppColors.divider),
-                  onChanged: (val) {
-                    if (val != null) {
-                      setState(() => _customOctaves[i] = val);
-                    }
-                  },
-                  items: List.generate(8, (o) => o)
-                      .map((o) => DropdownMenuItem(value: o, child: Text('$o')))
-                      .toList(),
-                ),
-              ],
+          ...List.generate(
+            _stringCount,
+            (i) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  Text(
+                    'String ${i + 1}',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Note name dropdown
+                  DropdownButton<String>(
+                    value: _customNoteNames[i],
+                    dropdownColor: AppColors.surface,
+                    style: const TextStyle(color: AppColors.textPrimary),
+                    underline: Container(height: 1, color: AppColors.divider),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() => _customNoteNames[i] = val);
+                      }
+                    },
+                    items: _noteNames
+                        .map((n) => DropdownMenuItem(value: n, child: Text(n)))
+                        .toList(),
+                  ),
+                  const SizedBox(width: 16),
+                  // Octave dropdown
+                  DropdownButton<int>(
+                    value: _customOctaves[i],
+                    dropdownColor: AppColors.surface,
+                    style: const TextStyle(color: AppColors.textPrimary),
+                    underline: Container(height: 1, color: AppColors.divider),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() => _customOctaves[i] = val);
+                      }
+                    },
+                    items: List.generate(8, (o) => o)
+                        .map(
+                          (o) => DropdownMenuItem(value: o, child: Text('$o')),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
             ),
-          )),
+          ),
 
           const SizedBox(height: 16),
           SizedBox(
@@ -230,7 +256,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 if (name.isEmpty) return;
                 final strings = List.generate(
                   _stringCount,
-                  (i) => Note.fromNameOctave(_customNoteNames[i], _customOctaves[i]),
+                  (i) => Note.fromNameOctave(
+                    _customNoteNames[i],
+                    _customOctaves[i],
+                  ),
                 );
                 final tuning = Tuning(
                   name: name,
@@ -254,8 +283,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text('Save Custom Tuning',
-                  style: TextStyle(fontWeight: FontWeight.w600)),
+              child: const Text(
+                'Save Custom Tuning',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
           ),
         ],
@@ -311,7 +342,10 @@ class _TuningTile extends StatelessWidget {
               const Icon(Icons.check_circle, color: AppColors.inTune, size: 20),
             if (onDelete != null)
               IconButton(
-                icon: const Icon(Icons.delete_outline, color: AppColors.textSecondary),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.textSecondary,
+                ),
                 onPressed: onDelete,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),

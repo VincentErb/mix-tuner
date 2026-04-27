@@ -14,7 +14,7 @@ class HighPassFilter {
   double _prevY = 0;
 
   HighPassFilter({required double sampleRate, required double cutoffHz})
-      : _alpha = 1 / (1 + 2 * pi * cutoffHz / sampleRate);
+    : _alpha = 1 / (1 + 2 * pi * cutoffHz / sampleRate);
 
   double process(double input) {
     final output = _alpha * (_prevY + input - _prevX);
