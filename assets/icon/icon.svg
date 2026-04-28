@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e2d5a"/>
+      <stop offset="100%" stop-color="#0f1830"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e4e78"/>
+      <stop offset="100%" stop-color="#1c3356"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+
+  <!-- Headstock body (3+3 style, symmetric, tapers toward neck at bottom) -->
+  <path d="
+    M 512 840
+    Q 460 840 415 810
+    L 360 730
+    L 330 610
+    Q 305 565 285 500
+    L 265 385
+    Q 250 295 310 255
+    Q 390 220 450 212
+    L 512 208
+    L 574 212
+    Q 634 220 714 255
+    Q 774 295 759 385
+    L 739 500
+    Q 719 565 694 610
+    L 664 730
+    L 609 810
+    Q 564 840 512 840
+    Z
+  " fill="url(#wood)" stroke="#4a80b8" stroke-width="8"/>
+
+  <!-- Nut (neck end) -->
+  <rect x="412" y="818" width="200" height="20" rx="4" fill="#4a80b8" opacity="0.8"/>
+
+  <!-- Tuning pegs — left (3) -->
+  <line x1="285" y1="355" x2="340" y2="355" stroke="#c8922a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="262" cy="355" r="30" fill="#c8922a" stroke="#f0c040" stroke-width="5"/>
+  <circle cx="262" cy="355" r="10" fill="#f0c040"/>
+
+  <line x1="270" y1="490" x2="325" y2="490" stroke="#c8922a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="247" cy="490" r="30" fill="#c8922a" stroke="#f0c040" stroke-width="5"/>
+  <circle cx="247" cy="490" r="10" fill="#f0c040"/>
+
+  <line x1="280" y1="615" x2="335" y2="615" stroke="#c8922a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="257" cy="615" r="30" fill="#c8922a" stroke="#f0c040" stroke-width="5"/>
+  <circle cx="257" cy="615" r="10" fill="#f0c040"/>
+
+  <!-- Tuning pegs — right (3) -->
+  <line x1="739" y1="355" x2="684" y2="355" stroke="#c8922a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="762" cy="355" r="30" fill="#c8922a" stroke="#f0c040" stroke-width="5"/>
+  <circle cx="762" cy="355" r="10" fill="#f0c040"/>
+
+  <line x1="754" y1="490" x2="699" y2="490" stroke="#c8922a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="777" cy="490" r="30" fill="#c8922a" stroke="#f0c040" stroke-width="5"/>
+  <circle cx="777" cy="490" r="10" fill="#f0c040"/>
+
+  <line x1="744" y1="615" x2="689" y2="615" stroke="#c8922a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="767" cy="615" r="30" fill="#c8922a" stroke="#f0c040" stroke-width="5"/>
+  <circle cx="767" cy="615" r="10" fill="#f0c040"/>
+
+  <!-- "Mix" text centered on headstock -->
+  <text
+    x="512" y="610"
+    font-family="Arial Black, 'Arial Bold', sans-serif"
+    font-size="210"
+    font-weight="900"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    fill="#ffffff"
+    letter-spacing="-6">Mix</text>
+</svg>
